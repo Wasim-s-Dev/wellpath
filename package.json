@@ -1,0 +1,26 @@
+{
+  "name": "wellpath",
+  "private": true,
+  "version": "0.1.0",
+  "description": "WellPath: AI powered personalized health and lifestyle planner (FYP)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @wellpath/api",
+    "dev:web": "npm run dev -w @wellpath/web",
+    "dev:admin": "npm run dev -w @wellpath/admin",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.5",
+    "@types/node": "^22.15.0"
+  }
+}
