@@ -13,6 +13,7 @@ import { errorHandler, notFound } from "./middleware/errors.js";
 export function createApp() {
   const app = express();
 
+  app.set("trust proxy", env.TRUST_PROXY_HOPS);
   app.use(helmet()); // secure HTTP headers
   app.use(cors({ origin: env.corsOrigins, credentials: true })); // only our frontends
   app.use(express.json({ limit: "100kb" }));

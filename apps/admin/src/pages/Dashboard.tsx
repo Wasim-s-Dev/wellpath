@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { AreaChart, BarList, StackedBars } from '../components/charts'
 import { Icon } from '../components/icons'
 import { Avatar, Badge, Card, CardHeader, PageHeader, td, th } from '../components/ui'
+import { API_URL } from '../lib/api'
 import { aiUsage } from '../lib/seed'
 import { useStore } from '../lib/store'
 import { GOAL_LABEL } from '../lib/types'
@@ -18,7 +19,7 @@ export function Dashboard() {
 
   useEffect(() => {
     const t0 = performance.now()
-    fetch('/health').then((r) => r.json()).then((d) => { setApi(d.status === 'ok' ? 'online' : 'offline'); setLatency(Math.round(performance.now() - t0)) }).catch(() => setApi('offline'))
+    fetch(`${API_URL}/health`).then((r) => r.json()).then((d) => { setApi(d.status === 'ok' ? 'online' : 'offline'); setLatency(Math.round(performance.now() - t0)) }).catch(() => setApi('offline'))
   }, [])
 
   const k = useMemo(() => {

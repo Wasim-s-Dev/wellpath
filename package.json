@@ -8,19 +8,23 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "concurrently -k -n api,web,admin -c blue,magenta,green \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:admin\"",
     "dev:api": "npm run dev -w @wellpath/api",
     "dev:web": "npm run dev -w @wellpath/web",
     "dev:admin": "npm run dev -w @wellpath/admin",
     "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "doctor": "npm run doctor -w @wellpath/api"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
+    "@types/node": "^22.15.0",
+    "concurrently": "^9.2.5",
     "typescript": "^5.8.0",
-    "vitest": "^5.0.5",
-    "@types/node": "^22.15.0"
+    "vitest": "^5.0.5"
   }
 }
