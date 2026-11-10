@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
+    "build": "tsx scripts/build.ts",
+    "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "doctor": "tsx scripts/doctor.ts"
@@ -19,7 +20,6 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.1.0",
     "mongoose": "^8.15.0",
-    "tsx": "^4.20.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -27,7 +27,9 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.15.0",
     "@types/supertest": "^6.0.0",
+    "esbuild": "^0.28.2",
     "supertest": "^7.1.0",
+    "tsx": "^4.20.0",
     "typescript": "^5.8.0",
     "vitest": "^5.0.5"
   }

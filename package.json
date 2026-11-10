@@ -13,6 +13,7 @@
     "dev:web": "npm run dev -w @wellpath/web",
     "dev:admin": "npm run dev -w @wellpath/admin",
     "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "doctor": "npm run doctor -w @wellpath/api"

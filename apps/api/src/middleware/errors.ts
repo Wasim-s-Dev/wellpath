@@ -11,6 +11,11 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     res.status(400).json({ error: "Validation failed", details: z.flattenError(err).fieldErrors });
     return;
   }
+  // Client errors raised by middleware, such as malformed JSON (400) or an oversized body (413).
+  if (typeof err.status === "number" && err.status >= 400 && err.status < 500) {
+    res.status(err.status).json({ error: err.status === 413 ? "Request body too large" : "Invalid request" });
+    return;
+  }
   console.error(err);
   res.status(500).json({ error: "Something went wrong" });
 };

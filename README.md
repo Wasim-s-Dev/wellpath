@@ -26,15 +26,26 @@ npm run dev:web                    # terminal 2
 npm run dev:admin                  # terminal 3 (optional)
 ```
 
-Open http://localhost:5173. "API status: online" means frontend and backend are connected.
+Open http://localhost:5173 for the web app. The admin dashboard at http://localhost:5174 shows whether the API is online.
+
+Run `npm run doctor` to check `apps/api/.env` and the MongoDB connection.
 
 ## Useful commands
 
 ```bash
+npm run lint      # lint the frontends
 npm test          # all unit + API tests
 npm run typecheck # TypeScript checks for every project
 npm run build     # production builds
 ```
+
+## Deployment
+
+| App | Host | Setup |
+| --- | --- | --- |
+| `apps/api` | Render | Blueprint in `render.yaml`. Set `MONGODB_URI` and `CORS_ORIGINS` in the dashboard. |
+| `apps/web` | Vercel | Root directory `apps/web` |
+| `apps/admin` | Vercel | Root directory `apps/admin`. Set `VITE_API_URL` to the Render URL. |
 
 ## API so far
 
