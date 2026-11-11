@@ -108,6 +108,14 @@ export function createAuthClient({ baseUrl, authPath, sessionHint }: AuthClientO
     return refreshSession();
   }
 
+  /** Calls the API as the signed-in user, refreshing the access token once if it has expired. */
+  async function api<T>(path: string, init?: RequestInit): Promise<T> {
+    let res = await send(path, init);
+    if (res.status === 401 && accessToken && (await refreshSession())) res = await send(path, init);
+    if (!res.ok) throw await toError(res);
+    return (res.status === 204 ? undefined : await res.json()) as T;
+  }
+
   async function postCredentials(path: string, body: LoginInput | RegisterInput): Promise<PublicUser> {
     const res = await send(`${authPath}${path}`, { method: "POST", body: JSON.stringify(body) });
     if (!res.ok) throw await toError(res);
@@ -140,12 +148,16 @@ export function createAuthClient({ baseUrl, authPath, sessionHint }: AuthClientO
       }
     },
 
-    /** Calls the API as the signed-in user, refreshing the access token once if it has expired. */
-    async api<T>(path: string, init?: RequestInit): Promise<T> {
-      let res = await send(path, init);
-      if (res.status === 401 && accessToken && (await refreshSession())) res = await send(path, init);
-      if (!res.ok) throw await toError(res);
-      return (res.status === 204 ? undefined : await res.json()) as T;
+    api,
+
+    /**
+     * Deletes the signed-in account after checking the password, then signs out.
+     * beforeSignOut runs first, so the app can leave protected pages before they redirect to login.
+     */
+    async deleteAccount(password: string, beforeSignOut?: () => void): Promise<void> {
+      await api<void>(`${authPath}/account`, { method: "DELETE", body: JSON.stringify({ password }) });
+      beforeSignOut?.();
+      clearSession();
     },
   };
 }

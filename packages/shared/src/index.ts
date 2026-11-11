@@ -88,6 +88,10 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password").max(128, "Use 128 characters or fewer"),
 });
 
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, "Enter your password").max(128, "Use 128 characters or fewer"),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 

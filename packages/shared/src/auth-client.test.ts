@@ -96,6 +96,31 @@ describe("api", () => {
   });
 });
 
+describe("deleteAccount", () => {
+  it("signs out after the account is deleted, running beforeSignOut first", async () => {
+    const { client, fetchMock, hint } = setup(false);
+    fetchMock.mockResolvedValueOnce(json(200, session("t1"))).mockResolvedValueOnce(json(204));
+    await client.login({ email: user.email, password: "pw" });
+    const order: string[] = [];
+    client.subscribe(() => order.push(client.getState().status));
+    await client.deleteAccount("pw", () => order.push("before"));
+    expect(order).toEqual(["before", "signed-out"]);
+    expect(fetchMock.mock.calls[1][0]).toBe("/auth/account");
+    expect(fetchMock.mock.calls[1][1]?.method).toBe("DELETE");
+    expect(hint.value).toBe(false);
+  });
+
+  it("stays signed in when the password is wrong", async () => {
+    const { client, fetchMock } = setup(false);
+    fetchMock.mockResolvedValueOnce(json(200, session("t1"))).mockResolvedValueOnce(json(403, { error: "Incorrect password" }));
+    await client.login({ email: user.email, password: "pw" });
+    const err = (await client.deleteAccount("nope").catch((e: unknown) => e)) as ApiError;
+    expect(err.status).toBe(403);
+    expect(err.message).toBe("Incorrect password");
+    expect(client.getState().status).toBe("signed-in");
+  });
+});
+
 describe("logout", () => {
   it("forgets the session even when the server cannot be reached", async () => {
     const { client, fetchMock, hint } = setup(false);

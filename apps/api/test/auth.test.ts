@@ -200,6 +200,77 @@ describe("logout", () => {
   });
 });
 
+describe("delete account", () => {
+  const ACCOUNT = "/api/v1/auth/account";
+  const del = (token: string, password: string, cookie = "") =>
+    request(app).delete(ACCOUNT).set("Authorization", `Bearer ${token}`).set("Cookie", cookie).send({ password });
+
+  it("requires sign-in", async () => {
+    expect((await request(app).delete(ACCOUNT).send({ password: ama.password })).status).toBe(401);
+  });
+
+  it("keeps the account when the password is wrong", async () => {
+    const { body } = await register();
+    const res = await del(body.accessToken, "wrong-password");
+    expect(res.status).toBe(403);
+    expect(await User.countDocuments()).toBe(1);
+  });
+
+  it("deletes the user, their profile and every session", async () => {
+    const reg = await register();
+    const cookie = refreshCookie(reg);
+    await request(app).put("/api/v1/profile").set("Authorization", `Bearer ${reg.body.accessToken}`).send({
+      sex: "female", age: 30, heightCm: 165, weightKg: 65, activityLevel: "light", goal: "maintain",
+      conditions: [], pregnantOrBreastfeeding: false, dietType: "vegetarian", workoutMinutes: 20, healthDataConsent: true,
+    });
+    await request(app).post(LOGIN).send({ email: ama.email, password: ama.password }); // a second device
+
+    const res = await del(reg.body.accessToken, ama.password, cookie);
+    expect(res.status).toBe(204);
+    expect(setCookieHeader(res)).toMatch(/wellpath_refresh=;/);
+    expect(await User.countDocuments()).toBe(0);
+    expect(await Session.countDocuments()).toBe(0);
+    expect((await refresh(cookie)).status).toBe(401);
+    expect((await request(app).get(ME).set("Authorization", `Bearer ${reg.body.accessToken}`)).status).toBe(401);
+    expect((await request(app).post(LOGIN).send({ email: ama.email, password: ama.password })).status).toBe(401);
+  });
+
+  it("frees the email for a new account", async () => {
+    const { body } = await register();
+    await del(body.accessToken, ama.password);
+    expect((await register()).status).toBe(201);
+  });
+
+  it("leaves other people's accounts alone", async () => {
+    const { body } = await register();
+    await request(app).post(REGISTER).send({ ...ama, email: "other@example.com" });
+    await del(body.accessToken, ama.password);
+    expect(await User.countDocuments({ email: "other@example.com" })).toBe(1);
+    expect(await Session.countDocuments()).toBe(1);
+  });
+
+  it("does not let the last admin delete their account", async () => {
+    const { body } = await register();
+    await User.updateOne({ email: ama.email }, { role: "admin" });
+    const res = await del(body.accessToken, ama.password);
+    expect(res.status).toBe(409);
+    expect(await User.countDocuments()).toBe(1);
+  });
+
+  it("lets an admin delete their account when another admin exists", async () => {
+    const { body } = await register();
+    await request(app).post(REGISTER).send({ ...ama, email: "second@example.com" });
+    await User.updateMany({}, { role: "admin" });
+    expect((await del(body.accessToken, ama.password)).status).toBe(204);
+  });
+
+  it("is not available on the admin sign-in routes", async () => {
+    const { body } = await register();
+    const res = await request(app).delete("/api/v1/admin/auth/account").set("Authorization", `Bearer ${body.accessToken}`).send({ password: ama.password });
+    expect(res.status).toBe(404);
+  });
+});
+
 describe("admin sign-in", () => {
   const ADMIN = "/api/v1/admin/auth";
   const adminLogin = () => request(app).post(`${ADMIN}/login`).send({ email: ama.email, password: ama.password });

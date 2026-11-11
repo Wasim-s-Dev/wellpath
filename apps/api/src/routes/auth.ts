@@ -8,7 +8,7 @@
 import { type CookieOptions, type Request, type Response, Router } from "express";
 import rateLimit from "express-rate-limit";
 import { mongo } from "mongoose";
-import { type AuthResponse, loginSchema, registerSchema } from "@wellpath/shared";
+import { type AuthResponse, deleteAccountSchema, loginSchema, registerSchema } from "@wellpath/shared";
 import { burnPasswordCheck, hashPassword, verifyPassword } from "../auth/passwords.js";
 import { endSession, revokeFamily, rotateSession, startSession } from "../auth/sessions.js";
 import { REFRESH_TOKEN_TTL_MS, signAccessToken } from "../auth/tokens.js";
@@ -17,6 +17,7 @@ import { HttpError } from "../middleware/errors.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import type { SessionClient } from "../models/Session.js";
 import { User, type UserDocument, toPublicUser } from "../models/User.js";
+import { deleteUserData, isLastAdmin } from "../services/accounts.js";
 
 type AuthRouterOptions = {
   client: SessionClient;
@@ -24,13 +25,14 @@ type AuthRouterOptions = {
   /** Must match the path this router is mounted on. */
   cookiePath: string;
   adminOnly: boolean;
-  allowRegister: boolean;
+  /** Lets people create and delete their own account. */
+  selfService: boolean;
 };
 
 const isProduction = env.NODE_ENV === "production";
 const isDuplicateKey = (err: unknown) => err instanceof mongo.MongoServerError && err.code === 11000;
 
-function createAuthRouter({ client, cookieName, cookiePath, adminOnly, allowRegister }: AuthRouterOptions) {
+function createAuthRouter({ client, cookieName, cookiePath, adminOnly, selfService }: AuthRouterOptions) {
   const router = Router();
 
   const cookieOptions: CookieOptions = {
@@ -74,7 +76,7 @@ function createAuthRouter({ client, cookieName, cookiePath, adminOnly, allowRegi
     res.status(status).json(body);
   }
 
-  if (allowRegister) {
+  if (selfService) {
     router.post("/register", credentialsLimiter, async (req, res) => {
       const { name, email, password } = registerSchema.parse(req.body);
       const passwordHash = await hashPassword(password);
@@ -83,6 +85,21 @@ function createAuthRouter({ client, cookieName, cookiePath, adminOnly, allowRegi
         throw err;
       });
       await signIn(res, user, 201);
+    });
+
+    // Asks for the password again, so a forgotten open laptop cannot delete someone's account.
+    router.delete("/account", requireAuth, credentialsLimiter, async (req, res) => {
+      const { password } = deleteAccountSchema.parse(req.body);
+      const user = await User.findById(req.auth!.userId).select("+passwordHash");
+      if (!user) throw new HttpError(401, "Not signed in");
+      // 403, not 401: the session is fine, only the password is wrong.
+      if (!(await verifyPassword(user.passwordHash, password))) throw new HttpError(403, "Incorrect password");
+      if (await isLastAdmin(user._id)) {
+        throw new HttpError(409, "You are the only admin. Make another account an admin before deleting this one.");
+      }
+      await deleteUserData(user._id);
+      clearRefreshCookie(res);
+      res.status(204).end();
     });
   }
 
@@ -139,7 +156,7 @@ export const authRouter = createAuthRouter({
   cookieName: "wellpath_refresh",
   cookiePath: "/api/v1/auth",
   adminOnly: false,
-  allowRegister: true,
+  selfService: true,
 });
 
 export const adminAuthRouter = createAuthRouter({
@@ -147,5 +164,5 @@ export const adminAuthRouter = createAuthRouter({
   cookieName: "wellpath_admin_refresh",
   cookiePath: "/api/v1/admin/auth",
   adminOnly: true,
-  allowRegister: false,
+  selfService: false,
 });
