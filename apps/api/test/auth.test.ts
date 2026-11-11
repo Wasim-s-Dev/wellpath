@@ -199,3 +199,60 @@ describe("logout", () => {
     expect((await request(app).post(LOGOUT)).status).toBe(204);
   });
 });
+
+describe("admin sign-in", () => {
+  const ADMIN = "/api/v1/admin/auth";
+  const adminLogin = () => request(app).post(`${ADMIN}/login`).send({ email: ama.email, password: ama.password });
+  const adminRefresh = (cookie: string) => request(app).post(`${ADMIN}/refresh`).set("Cookie", cookie);
+  const promote = () => User.updateOne({ email: ama.email }, { role: "admin" });
+
+  it("lets an admin sign in with a separate cookie", async () => {
+    await register();
+    await promote();
+    const res = await adminLogin();
+    expect(res.status).toBe(200);
+    expect(res.body.user.role).toBe("admin");
+    expect(setCookieHeader(res)).toMatch(/^wellpath_admin_refresh=.*Path=\/api\/v1\/admin\/auth/);
+  });
+
+  it("gives a normal user the same answer as a wrong password", async () => {
+    await register();
+    const notAdmin = await adminLogin();
+    const wrong = await request(app).post(`${ADMIN}/login`).send({ email: ama.email, password: "wrong-password" });
+    expect(notAdmin.status).toBe(401);
+    expect(notAdmin.body).toEqual(wrong.body);
+  });
+
+  it("does not allow registration", async () => {
+    expect((await request(app).post(`${ADMIN}/register`).send(ama)).status).toBe(404);
+  });
+
+  it("refreshes an admin session", async () => {
+    await register();
+    await promote();
+    const cookie = refreshCookie(await adminLogin());
+    const res = await adminRefresh(cookie);
+    expect(res.status).toBe(200);
+    expect(res.body.user.role).toBe("admin");
+  });
+
+  it("ends the admin session once the account is no longer an admin", async () => {
+    await register();
+    await promote();
+    const cookie = refreshCookie(await adminLogin());
+    await User.updateOne({ email: ama.email }, { role: "user" });
+    expect((await adminRefresh(cookie)).status).toBe(401);
+  });
+
+  it("keeps app and admin sessions apart", async () => {
+    await register();
+    await promote();
+    const appToken = refreshCookie(await request(app).post(LOGIN).send({ email: ama.email, password: ama.password })).split("=")[1];
+    const adminToken = refreshCookie(await adminLogin()).split("=")[1];
+    expect((await adminRefresh(`wellpath_admin_refresh=${appToken}`)).status).toBe(401);
+    expect((await refresh(`wellpath_refresh=${adminToken}`)).status).toBe(401);
+    // Trying the wrong door must not end either real session.
+    expect((await refresh(`wellpath_refresh=${appToken}`)).status).toBe(200);
+    expect((await adminRefresh(`wellpath_admin_refresh=${adminToken}`)).status).toBe(200);
+  });
+});

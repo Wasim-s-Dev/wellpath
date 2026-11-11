@@ -16,7 +16,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "doctor": "npm run doctor -w @wellpath/api"
+    "doctor": "npm run doctor -w @wellpath/api",
+    "make-admin": "npm run make-admin -w @wellpath/api --"
   },
   "engines": {
     "node": ">=22"

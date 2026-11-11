@@ -12,13 +12,18 @@ import { SafetyRules } from './pages/SafetyRules'
 import { AiSettings } from './pages/AiSettings'
 import { AuditLog } from './pages/AuditLog'
 import { Settings } from './pages/Settings'
-import { useStore } from './lib/store'
+import { refreshSession, useAuth } from './lib/auth'
 
-/** Sends signed-out visitors to the login page. */
+/** Sends signed-out visitors to the login page, after checking for a saved session. */
 function RequireAdmin({ children }: { children: ReactNode }) {
-  const session = useStore((s) => s.session)
-  return session ? children : <Navigate to="/login" replace />
+  const auth = useAuth()
+  if (auth.status === 'loading') {
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted" role="status">Checking your session…</div>
+  }
+  return auth.status === 'signed-in' ? children : <Navigate to="/login" replace />
 }
+
+void refreshSession()
 
 const router = createBrowserRouter([
   { path: '/login', element: <Login /> },

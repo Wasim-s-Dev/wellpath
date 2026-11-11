@@ -7,7 +7,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
-import { authRouter } from "./routes/auth.js";
+import { adminAuthRouter, authRouter } from "./routes/auth.js";
 import { healthRouter } from "./routes/health.js";
 import { planRouter } from "./routes/plan.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
@@ -24,6 +24,7 @@ export function createApp() {
 
   app.use("/health", healthRouter);
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/admin/auth", adminAuthRouter);
   app.use("/api/v1/plan", planRouter);
 
   app.use(notFound);
