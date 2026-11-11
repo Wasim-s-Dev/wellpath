@@ -24,5 +24,28 @@ export type Goal = (typeof GOALS)[number];
 export type ActivityLevel = (typeof ACTIVITY_LEVELS)[number];
 export type Sex = (typeof SEXES)[number];
 
+export const ROLES = ["user", "admin"] as const;
+export type Role = (typeof ROLES)[number];
+
+const emailField = z.string().trim().toLowerCase().pipe(z.email().max(254));
+
+export const registerSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  email: emailField,
+  password: z.string().min(8).max(128),
+});
+
+export const loginSchema = z.object({
+  email: emailField,
+  password: z.string().min(1).max(128),
+});
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+
+/** The user fields that are safe to send to a browser. */
+export type PublicUser = { id: string; name: string; email: string; role: Role };
+export type AuthResponse = { accessToken: string; user: PublicUser };
+
 /** Shape of the API health check response. */
 export type HealthResponse = { status: "ok"; service: "wellpath-api"; time: string };

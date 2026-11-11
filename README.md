@@ -53,6 +53,11 @@ npm run build     # production builds
 | --- | --- | --- |
 | GET | `/health` | API is alive |
 | POST | `/api/v1/plan/preview` | Daily calorie and macro targets from a profile |
+| POST | `/api/v1/auth/register` | Create an account and start a session |
+| POST | `/api/v1/auth/login` | Sign in and start a session |
+| POST | `/api/v1/auth/refresh` | Swap the refresh cookie for a new access token |
+| POST | `/api/v1/auth/logout` | End the session |
+| GET | `/api/v1/auth/me` | Current user (needs `Authorization: Bearer <token>`) |
 
 ## Tech stack
 
