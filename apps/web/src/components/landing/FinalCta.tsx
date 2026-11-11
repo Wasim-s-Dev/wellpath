@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { Logo, Reveal } from './ui'
 
 /** Closing call to action on the deep indigo gradient, as on replyze.co. */
@@ -8,7 +9,7 @@ export function FinalCta() {
       <Reveal className="relative mx-auto max-w-3xl">
         <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">Stop guessing. Start a plan that adapts.</h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-indigo-100/90">Your first plan takes 60 seconds. It gets smarter every week after that.</p>
-        <a href="#try" className="mt-9 inline-block rounded-xl bg-white px-8 py-4 text-base font-bold text-violet shadow-lg transition-transform hover:-translate-y-0.5">Build my free plan</a>
+        <Link to="/signup" className="mt-9 inline-block rounded-xl bg-white px-8 py-4 text-base font-bold text-violet shadow-lg transition-transform hover:-translate-y-0.5">Build my free plan</Link>
         <p className="mt-6 text-sm text-indigo-100/80">No card needed · Every number explained · Delete your data any time</p>
       </Reveal>
     </section>

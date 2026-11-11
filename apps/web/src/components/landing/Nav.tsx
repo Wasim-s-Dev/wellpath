@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import { useAuth } from '../../lib/auth'
 import { Logo } from './ui'
 
 const links = [
@@ -13,6 +15,7 @@ const links = [
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const signedIn = useAuth().status === 'signed-in'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -31,7 +34,14 @@ export function Nav() {
           ))}
         </ul>
         <div className="flex items-center gap-3">
-          <a href="#try" className="btn-primary hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-white sm:inline-block">Get your plan, free</a>
+          {signedIn ? (
+            <Link to="/app" className="btn-primary hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-white sm:inline-block">Open the app</Link>
+          ) : (
+            <>
+              <Link to="/login" className="hidden rounded-xl px-3 py-2.5 text-sm font-semibold text-heading hover:text-violet sm:inline-block">Log in</Link>
+              <Link to="/signup" className="btn-primary hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-white sm:inline-block">Get started free</Link>
+            </>
+          )}
           <button
             type="button"
             className="rounded-lg p-2 text-muted hover:text-heading md:hidden"
@@ -52,7 +62,14 @@ export function Nav() {
               <a className="block rounded-lg px-3 py-2.5 text-muted hover:bg-ink-2 hover:text-heading" href={l.href} onClick={() => setOpen(false)}>{l.label}</a>
             </li>
           ))}
-          <li className="pt-2"><a href="#try" onClick={() => setOpen(false)} className="btn-primary block rounded-full px-4 py-2.5 text-center text-sm font-semibold text-white">Get your plan, free</a></li>
+          {signedIn ? (
+            <li className="pt-2"><Link to="/app" className="btn-primary block rounded-full px-4 py-2.5 text-center text-sm font-semibold text-white">Open the app</Link></li>
+          ) : (
+            <>
+              <li className="pt-2"><Link to="/signup" className="btn-primary block rounded-full px-4 py-2.5 text-center text-sm font-semibold text-white">Get started free</Link></li>
+              <li><Link to="/login" className="block rounded-full px-4 py-2.5 text-center text-sm font-semibold text-heading">Log in</Link></li>
+            </>
+          )}
         </ul>
       )}
     </header>

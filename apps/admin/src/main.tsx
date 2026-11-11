@@ -12,7 +12,7 @@ import { SafetyRules } from './pages/SafetyRules'
 import { AiSettings } from './pages/AiSettings'
 import { AuditLog } from './pages/AuditLog'
 import { Settings } from './pages/Settings'
-import { refreshSession, useAuth } from './lib/auth'
+import { restoreSession, useAuth } from './lib/auth'
 
 /** Sends signed-out visitors to the login page, after checking for a saved session. */
 function RequireAdmin({ children }: { children: ReactNode }) {
@@ -23,7 +23,7 @@ function RequireAdmin({ children }: { children: ReactNode }) {
   return auth.status === 'signed-in' ? children : <Navigate to="/login" replace />
 }
 
-void refreshSession()
+void restoreSession()
 
 const router = createBrowserRouter([
   { path: '/login', element: <Login /> },

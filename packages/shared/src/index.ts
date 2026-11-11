@@ -27,17 +27,22 @@ export type Sex = (typeof SEXES)[number];
 export const ROLES = ["user", "admin"] as const;
 export type Role = (typeof ROLES)[number];
 
-const emailField = z.string().trim().toLowerCase().pipe(z.email().max(254));
+// Messages here are shown to users by both the browser and the API.
+const emailField = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .pipe(z.email("Enter a valid email address").max(254, "Email is too long"));
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(1).max(80),
+  name: z.string().trim().min(1, "Enter your name").max(80, "Use 80 characters or fewer"),
   email: emailField,
-  password: z.string().min(8).max(128),
+  password: z.string().min(8, "Use at least 8 characters").max(128, "Use 128 characters or fewer"),
 });
 
 export const loginSchema = z.object({
   email: emailField,
-  password: z.string().min(1).max(128),
+  password: z.string().min(1, "Enter your password").max(128, "Use 128 characters or fewer"),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

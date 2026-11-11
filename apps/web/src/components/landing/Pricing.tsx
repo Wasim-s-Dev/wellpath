@@ -6,7 +6,7 @@ const plans = [
     price: '$0',
     note: 'Free during beta',
     cta: 'Build my free plan',
-    href: '#try',
+    href: '/signup',
     featured: true,
     items: ['Personal food and workout plan', 'Weekly adaptive targets', 'Daily tracker and progress charts', 'AI coach, daily question limit', 'Safety rules and Ramadan mode'],
   },
