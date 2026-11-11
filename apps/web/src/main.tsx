@@ -7,16 +7,23 @@ import { SignUp } from './pages/SignUp.tsx'
 import { Login } from './pages/Login.tsx'
 import { Home } from './pages/Home.tsx'
 import { Onboarding } from './pages/Onboarding.tsx'
-import { restoreSession, useAuth } from './lib/auth.ts'
+import { Settings } from './pages/Settings.tsx'
+import { Toaster } from './components/Toaster.tsx'
+import { restoreSession, useAuth, wasSignedOutOnPurpose } from './lib/auth.ts'
 
-/** Sends signed-out visitors to the login page, then back here after they sign in. */
+/**
+ * Sends signed-out visitors to the login page, then back here after they sign in.
+ * After a logout or account deletion, it goes to the home page instead.
+ */
 function RequireUser({ children }: { children: ReactNode }) {
   const auth = useAuth()
   const location = useLocation()
   if (auth.status === 'loading') {
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted" role="status">Loading…</div>
   }
-  return auth.status === 'signed-in' ? children : <Navigate to="/login" replace state={{ from: location.pathname }} />
+  if (auth.status === 'signed-in') return children
+  if (wasSignedOutOnPurpose()) return <Navigate to="/" replace />
+  return <Navigate to="/login" replace state={{ from: location.pathname }} />
 }
 
 const router = createBrowserRouter([
@@ -25,6 +32,7 @@ const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/app', element: <RequireUser><Home /></RequireUser> },
   { path: '/onboarding', element: <RequireUser><Onboarding /></RequireUser> },
+  { path: '/settings', element: <RequireUser><Settings /></RequireUser> },
   { path: '*', element: <Navigate to="/" replace /> },
 ])
 
@@ -33,5 +41,6 @@ void restoreSession()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <RouterProvider router={router} />
+    <Toaster />
   </StrictMode>,
 )

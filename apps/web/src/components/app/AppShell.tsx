@@ -1,18 +1,15 @@
 /** Header and page frame for signed-in pages. */
 import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router'
+import { NavLink } from 'react-router'
 import { Logo } from '../landing/ui'
 import { logout, useAuth } from '../../lib/auth'
 
 export function AppShell({ children, narrow = false }: { children: ReactNode; narrow?: boolean }) {
   const auth = useAuth()
-  const navigate = useNavigate()
   const email = auth.status === 'signed-in' ? auth.user.email : ''
 
-  const signOut = async () => {
-    await logout()
-    navigate('/', { replace: true })
-  }
+  // After logout the protected page sends you home, where the "logged out" message shows.
+  const signOut = () => void logout()
 
   return (
     <div className="min-h-screen bg-ink-2">
@@ -20,7 +17,10 @@ export function AppShell({ children, narrow = false }: { children: ReactNode; na
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
           <Logo href="/app" />
           <div className="flex min-w-0 items-center gap-3">
-            <span className="hidden truncate text-sm text-muted sm:inline">{email}</span>
+            <span className="hidden truncate text-sm text-muted md:inline">{email}</span>
+            <NavLink to="/settings" className={({ isActive }) => `shrink-0 rounded-xl px-3 py-2 text-sm font-semibold hover:bg-ink-2 ${isActive ? 'text-violet' : 'text-heading'}`}>
+              Settings
+            </NavLink>
             <button type="button" onClick={signOut} className="shrink-0 rounded-xl border border-line bg-white px-4 py-2 text-sm font-semibold text-heading hover:bg-ink-2">
               Log out
             </button>
