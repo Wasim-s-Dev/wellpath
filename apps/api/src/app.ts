@@ -10,6 +10,7 @@ import { env } from "./config/env.js";
 import { adminAuthRouter, authRouter } from "./routes/auth.js";
 import { healthRouter } from "./routes/health.js";
 import { planRouter } from "./routes/plan.js";
+import { profileRouter } from "./routes/profile.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 
 export function createApp() {
@@ -26,6 +27,7 @@ export function createApp() {
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/admin/auth", adminAuthRouter);
   app.use("/api/v1/plan", planRouter);
+  app.use("/api/v1/profile", profileRouter);
 
   app.use(notFound);
   app.use(errorHandler);

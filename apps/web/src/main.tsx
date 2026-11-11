@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { SignUp } from './pages/SignUp.tsx'
 import { Login } from './pages/Login.tsx'
 import { Home } from './pages/Home.tsx'
+import { Onboarding } from './pages/Onboarding.tsx'
 import { restoreSession, useAuth } from './lib/auth.ts'
 
 /** Sends signed-out visitors to the login page, then back here after they sign in. */
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
   { path: '/signup', element: <SignUp /> },
   { path: '/login', element: <Login /> },
   { path: '/app', element: <RequireUser><Home /></RequireUser> },
+  { path: '/onboarding', element: <RequireUser><Onboarding /></RequireUser> },
   { path: '*', element: <Navigate to="/" replace /> },
 ])
 

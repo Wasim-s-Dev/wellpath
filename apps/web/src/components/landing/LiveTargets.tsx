@@ -73,6 +73,9 @@ export function LiveTargets() {
                 </div>
               ))}
             </div>
+            {t.warnings.map((w) => (
+              <p key={w} className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-relaxed text-amber-900" role="note">{w}</p>
+            ))}
             <div className="mt-6 rounded-xl border border-line bg-ink-2/50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted">Why these numbers</p>
               <ul className="mt-3 space-y-2 text-sm text-text">

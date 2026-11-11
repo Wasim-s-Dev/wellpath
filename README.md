@@ -69,6 +69,8 @@ Before deploying: browsers such as Safari block cookies from another site, which
 | POST | `/api/v1/auth/refresh` | Swap the refresh cookie for a new access token |
 | POST | `/api/v1/auth/logout` | End the session |
 | GET | `/api/v1/auth/me` | Current user (needs `Authorization: Bearer <token>`) |
+| GET | `/api/v1/profile` | Saved onboarding answers, daily targets and safety notices (signed in) |
+| PUT | `/api/v1/profile` | Save onboarding answers (signed in, health data consent required) |
 | POST | `/api/v1/admin/auth/login` | Admin sign-in (admin accounts only, separate session) |
 | POST | `/api/v1/admin/auth/refresh` | Swap the admin refresh cookie for a new access token |
 | POST | `/api/v1/admin/auth/logout` | End the admin session |
