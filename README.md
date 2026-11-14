@@ -30,6 +30,15 @@ Open http://localhost:5173 for the web app. The admin dashboard at http://localh
 
 Run `npm run doctor` to check `apps/api/.env` and the MongoDB connection.
 
+### Admin access
+
+Register an account in the app (or with `POST /api/v1/auth/register`), then give it admin access:
+
+```bash
+npm run make-admin -- you@example.com            # make admin
+npm run make-admin -- --remove you@example.com   # remove admin
+```
+
 ## Useful commands
 
 ```bash
@@ -47,12 +56,26 @@ npm run build     # production builds
 | `apps/web` | Vercel | Root directory `apps/web` |
 | `apps/admin` | Vercel | Root directory `apps/admin`. Set `VITE_API_URL` to the Render URL. |
 
+Before deploying: browsers such as Safari block cookies from another site, which would sign people out on every reload. Proxy `/api` through each Vercel app (a rewrite to the Render URL) so the session cookie is same-site.
+
 ## API so far
 
 | Method | Path | Description |
 | --- | --- | --- |
 | GET | `/health` | API is alive |
 | POST | `/api/v1/plan/preview` | Daily calorie and macro targets from a profile |
+| POST | `/api/v1/auth/register` | Create an account and start a session |
+| POST | `/api/v1/auth/login` | Sign in and start a session |
+| POST | `/api/v1/auth/refresh` | Swap the refresh cookie for a new access token |
+| POST | `/api/v1/auth/logout` | End the session |
+| GET | `/api/v1/auth/me` | Current user (needs `Authorization: Bearer <token>`) |
+| DELETE | `/api/v1/auth/account` | Delete the signed-in account and all its data (password required) |
+| GET | `/api/v1/profile` | Saved onboarding answers, daily targets and safety notices (signed in) |
+| PUT | `/api/v1/profile` | Save onboarding answers (signed in, health data consent required) |
+| POST | `/api/v1/admin/auth/login` | Admin sign-in (admin accounts only, separate session) |
+| POST | `/api/v1/admin/auth/refresh` | Swap the admin refresh cookie for a new access token |
+| POST | `/api/v1/admin/auth/logout` | End the admin session |
+| GET | `/api/v1/admin/auth/me` | Current admin |
 
 ## Tech stack
 

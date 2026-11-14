@@ -4,6 +4,7 @@ import { Icon } from './icons'
 import { Avatar, Badge } from './ui'
 import { Toaster } from './toast'
 import { setState, useStore } from '../lib/store'
+import { logout, useAuth } from '../lib/auth'
 
 const nav = [
   { group: 'Overview', items: [{ to: '/', label: 'Dashboard', icon: 'dashboard' }, { to: '/users', label: 'Users', icon: 'users' }] },
@@ -12,7 +13,8 @@ const nav = [
 ]
 
 export function Layout() {
-  const session = useStore((s) => s.session)
+  const auth = useAuth()
+  const user = auth.status === 'signed-in' ? auth.user : null
   const maintenance = useStore((s) => s.flags.maintenanceMode)
   const [open, setOpen] = useState(false)
   const loc = useLocation()
@@ -47,14 +49,14 @@ export function Layout() {
       </nav>
       <div className="border-t border-line p-3">
         <div className="flex items-center gap-3 rounded-xl px-2 py-2">
-          <Avatar name={session?.name ?? 'Admin'} />
+          <Avatar name={user?.name ?? 'Admin'} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-heading">{session?.name}</p>
-            <p className="truncate text-xs text-muted">{session?.email}</p>
+            <p className="truncate text-sm font-semibold text-heading">{user?.name}</p>
+            <p className="truncate text-xs text-muted">{user?.email}</p>
           </div>
           <button
             className="rounded-lg p-2 text-muted hover:bg-ink-2 hover:text-heading" aria-label="Sign out"
-            onClick={() => { setState(() => ({ session: null }), { action: 'Signed out', target: '-' }); navigate('/login') }}
+            onClick={async () => { setState(() => ({}), { action: 'Signed out', target: user?.email ?? '-' }); await logout(); navigate('/login') }}
           ><Icon name="logout" /></button>
         </div>
       </div>

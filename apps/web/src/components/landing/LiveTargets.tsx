@@ -3,6 +3,7 @@
  * so visitors see their own targets instantly, with the reasons behind them.
  */
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import { calculateDailyTargets } from '@wellpath/engine'
 import type { ActivityLevel, Goal, Profile, Sex } from '@wellpath/shared'
 import { useCountUp } from '../../hooks/useCountUp'
@@ -72,13 +73,17 @@ export function LiveTargets() {
                 </div>
               ))}
             </div>
+            {t.warnings.map((w) => (
+              <p key={w} className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-relaxed text-amber-900" role="note">{w}</p>
+            ))}
             <div className="mt-6 rounded-xl border border-line bg-ink-2/50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted">Why these numbers</p>
               <ul className="mt-3 space-y-2 text-sm text-text">
                 {t.reasons.map((r) => <li key={r} className="flex gap-2"><span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-lilac" />{r}</li>)}
               </ul>
             </div>
-            <p className="mt-5 text-xs text-muted">In the app, these targets recalibrate every week from your weight trend. Wellness guidance only, not medical advice.</p>
+            <Link to="/signup" className="btn-primary mt-6 block rounded-xl px-5 py-3 text-center text-sm font-semibold text-white">Save my plan, free</Link>
+            <p className="mt-4 text-xs text-muted">In the app, these targets recalibrate every week from your weight trend. Wellness guidance only, not medical advice.</p>
           </div>
         </Reveal>
       </div>

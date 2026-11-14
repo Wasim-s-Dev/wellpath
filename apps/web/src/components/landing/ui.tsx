@@ -30,9 +30,9 @@ export function SectionHeading({ eyebrow, title, sub, align = 'center' }: { eyeb
   )
 }
 
-export function Logo({ className = '', dark = false }: { className?: string; dark?: boolean }) {
+export function Logo({ className = '', dark = false, href = '#top' }: { className?: string; dark?: boolean; href?: string }) {
   return (
-    <a href="#top" className={`flex items-center gap-2.5 ${className}`} aria-label="WellPath home">
+    <a href={href} className={`flex items-center gap-2.5 ${className}`} aria-label="WellPath home">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
         <defs>
           <linearGradient id="wp-logo" x1="0" y1="0" x2="1" y2="1">
