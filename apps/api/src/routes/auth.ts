@@ -8,7 +8,14 @@
 import { type CookieOptions, type Request, type Response, Router } from "express";
 import rateLimit from "express-rate-limit";
 import { mongo } from "mongoose";
-import { type AuthResponse, deleteAccountSchema, loginSchema, registerSchema } from "@wellpath/shared";
+import {
+  type AuthResponse,
+  deleteAccountSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "@wellpath/shared";
 import { burnPasswordCheck, hashPassword, verifyPassword } from "../auth/passwords.js";
 import { endSession, revokeFamily, rotateSession, startSession } from "../auth/sessions.js";
 import { REFRESH_TOKEN_TTL_MS, signAccessToken } from "../auth/tokens.js";
@@ -18,6 +25,7 @@ import { requireAuth } from "../middleware/requireAuth.js";
 import type { SessionClient } from "../models/Session.js";
 import { User, type UserDocument, toPublicUser } from "../models/User.js";
 import { deleteUserData, isLastAdmin } from "../services/accounts.js";
+import { requestPasswordReset, resetPassword } from "../services/passwordReset.js";
 
 type AuthRouterOptions = {
   client: SessionClient;
@@ -85,6 +93,22 @@ function createAuthRouter({ client, cookieName, cookiePath, adminOnly, selfServi
         throw err;
       });
       await signIn(res, user, 201);
+    });
+
+    // Same answer whether or not the account exists, so this cannot be used to find out who is registered.
+    router.post("/forgot-password", credentialsLimiter, async (req, res) => {
+      const { email } = forgotPasswordSchema.parse(req.body);
+      await requestPasswordReset(email);
+      res.status(202).json({ message: "If an account exists for this email, we have sent a link to reset the password." });
+    });
+
+    router.post("/reset-password", credentialsLimiter, async (req, res) => {
+      const { token, password } = resetPasswordSchema.parse(req.body);
+      if (!(await resetPassword(token, password))) {
+        throw new HttpError(400, "This reset link is invalid or has expired. Please request a new one.");
+      }
+      clearRefreshCookie(res);
+      res.status(204).end();
     });
 
     // Asks for the password again, so a forgotten open laptop cannot delete someone's account.

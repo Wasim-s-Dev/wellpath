@@ -30,6 +30,10 @@ Open http://localhost:5173 for the web app. The admin dashboard at http://localh
 
 Run `npm run doctor` to check `apps/api/.env` and the MongoDB connection.
 
+### Email (password reset)
+
+Without email settings, reset emails are printed in the API terminal, so the flow works locally with no setup. To send real email with Gmail, turn on 2-Step Verification, create an app password (Google Account > Security > App passwords), and set `SMTP_HOST=smtp.gmail.com`, `SMTP_USER`, `SMTP_PASS` and `MAIL_FROM` in `apps/api/.env`. See `.env.example`.
+
 ### Admin access
 
 Register an account in the app (or with `POST /api/v1/auth/register`), then give it admin access:
@@ -69,6 +73,8 @@ Before deploying: browsers such as Safari block cookies from another site, which
 | POST | `/api/v1/auth/refresh` | Swap the refresh cookie for a new access token |
 | POST | `/api/v1/auth/logout` | End the session |
 | GET | `/api/v1/auth/me` | Current user (needs `Authorization: Bearer <token>`) |
+| POST | `/api/v1/auth/forgot-password` | Email a one-time reset link (same answer whether or not the account exists) |
+| POST | `/api/v1/auth/reset-password` | Set a new password with the link's token; signs out every device |
 | DELETE | `/api/v1/auth/account` | Delete the signed-in account and all its data (password required) |
 | GET | `/api/v1/profile` | Saved onboarding answers, daily targets and safety notices (signed in) |
 | PUT | `/api/v1/profile` | Save onboarding answers (signed in, health data consent required) |
