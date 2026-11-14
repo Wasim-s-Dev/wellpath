@@ -150,6 +150,18 @@ export function createAuthClient({ baseUrl, authPath, sessionHint }: AuthClientO
 
     api,
 
+    /** Asks for a reset email. Resolves the same way whether or not the account exists. */
+    async requestPasswordReset(email: string): Promise<void> {
+      const res = await send(`${authPath}/forgot-password`, { method: "POST", body: JSON.stringify({ email }) });
+      if (!res.ok) throw await toError(res);
+    },
+
+    /** Sets a new password with the token from the email. The person then logs in again. */
+    async resetPassword(token: string, password: string): Promise<void> {
+      const res = await send(`${authPath}/reset-password`, { method: "POST", body: JSON.stringify({ token, password }) });
+      if (!res.ok) throw await toError(res);
+    },
+
     /**
      * Deletes the signed-in account after checking the password, then signs out.
      * beforeSignOut runs first, so the app can leave protected pages before they redirect to login.
