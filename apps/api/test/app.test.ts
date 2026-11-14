@@ -39,7 +39,14 @@ describe("API", () => {
 });
 
 describe("parseEnv", () => {
-  const production = { NODE_ENV: "production" as const, MONGODB_URI: "mongodb://db/wellpath", JWT_SECRET: "x".repeat(32) };
+  const production = {
+    NODE_ENV: "production" as const,
+    MONGODB_URI: "mongodb://db/wellpath",
+    JWT_SECRET: "x".repeat(32),
+    APP_URL: "https://wellpath.example.com",
+    SMTP_HOST: "smtp.example.com",
+    MAIL_FROM: "WellPath <no-reply@example.com>",
+  };
 
   it("accepts a complete production config", () => {
     expect(parseEnv(production).success).toBe(true);
@@ -52,6 +59,18 @@ describe("parseEnv", () => {
   it("rejects a missing or short JWT_SECRET in production", () => {
     expect(parseEnv({ ...production, JWT_SECRET: undefined }).success).toBe(false);
     expect(parseEnv({ ...production, JWT_SECRET: "short" }).success).toBe(false);
+  });
+
+  it("requires email settings and an https app address in production", () => {
+    expect(parseEnv({ ...production, SMTP_HOST: undefined }).success).toBe(false);
+    expect(parseEnv({ ...production, MAIL_FROM: undefined }).success).toBe(false);
+    expect(parseEnv({ ...production, APP_URL: "http://localhost:5173" }).success).toBe(false);
+  });
+
+  it("treats empty lines in .env as not set", () => {
+    const result = parseEnv({ NODE_ENV: "development", SMTP_HOST: "", APP_URL: "http://localhost:5173/" });
+    expect(result.success && result.data.SMTP_HOST).toBeUndefined();
+    expect(result.success && result.data.APP_URL).toBe("http://localhost:5173");
   });
 
   it("does not require secrets in development", () => {

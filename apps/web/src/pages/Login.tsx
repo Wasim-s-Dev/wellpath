@@ -49,6 +49,9 @@ export function Login() {
         {formError && <FormError>{formError}</FormError>}
         <TextField label="Email" type="email" autoComplete="email" inputMode="email" value={form.email} onChange={update('email')} error={errors.email} />
         <TextField label="Password" type="password" autoComplete="current-password" value={form.password} onChange={update('password')} error={errors.password} />
+        <p className="-mt-1 text-right text-sm">
+          <Link to="/forgot-password" className="font-semibold text-violet hover:underline">Forgot password?</Link>
+        </p>
         <SubmitButton busy={busy} busyLabel="Logging in…">Log in</SubmitButton>
       </form>
     </AuthLayout>

@@ -37,6 +37,8 @@ export function verifyAccessToken(token: string): AccessClaims | null {
   }
 }
 
-export const newRefreshToken = () => randomBytes(32).toString("base64url");
+/** 256 random bits, safe to put in a cookie or a URL. Store only its hash. */
+export const newSecretToken = () => randomBytes(32).toString("base64url");
+export const newRefreshToken = newSecretToken;
 
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");

@@ -77,10 +77,19 @@ const emailField = z
   .toLowerCase()
   .pipe(z.email("Enter a valid email address").max(254, "Email is too long"));
 
+const newPasswordField = z.string().min(8, "Use at least 8 characters").max(128, "Use 128 characters or fewer");
+
 export const registerSchema = z.object({
   name: z.string().trim().min(1, "Enter your name").max(80, "Use 80 characters or fewer"),
   email: emailField,
-  password: z.string().min(8, "Use at least 8 characters").max(128, "Use 128 characters or fewer"),
+  password: newPasswordField,
+});
+
+export const forgotPasswordSchema = z.object({ email: emailField });
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(20, "This reset link is incomplete").max(200, "This reset link is invalid"),
+  password: newPasswordField,
 });
 
 export const loginSchema = z.object({

@@ -23,7 +23,7 @@ const client = createAuthClient({
   },
 })
 
-export const { api, login, register, restoreSession } = client
+export const { api, login, register, requestPasswordReset, resetPassword, restoreSession } = client
 
 // Set when the person chose to sign out (logout or account deletion), so protected pages
 // send them to the home page instead of the login page. Cleared on the next sign-in.

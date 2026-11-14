@@ -121,6 +121,25 @@ describe("deleteAccount", () => {
   });
 });
 
+describe("password reset", () => {
+  it("requests a reset email without signing in", async () => {
+    const { client, fetchMock } = setup(false);
+    fetchMock.mockResolvedValueOnce(json(202, { message: "sent" }));
+    await client.requestPasswordReset("ama@example.com");
+    expect(fetchMock.mock.calls[0][0]).toBe("/auth/forgot-password");
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ email: "ama@example.com" });
+    expect(client.getState().status).toBe("loading");
+  });
+
+  it("passes on the API's message for an expired link", async () => {
+    const { client, fetchMock } = setup(false);
+    fetchMock.mockResolvedValueOnce(json(400, { error: "This reset link is invalid or has expired. Please request a new one." }));
+    const err = (await client.resetPassword("t".repeat(43), "new-password").catch((e: unknown) => e)) as ApiError;
+    expect(err.status).toBe(400);
+    expect(err.message).toMatch(/expired/);
+  });
+});
+
 describe("logout", () => {
   it("forgets the session even when the server cannot be reached", async () => {
     const { client, fetchMock, hint } = setup(false);

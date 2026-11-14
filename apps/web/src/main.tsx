@@ -5,6 +5,8 @@ import './index.css'
 import App from './App.tsx'
 import { SignUp } from './pages/SignUp.tsx'
 import { Login } from './pages/Login.tsx'
+import { ForgotPassword } from './pages/ForgotPassword.tsx'
+import { ResetPassword } from './pages/ResetPassword.tsx'
 import { Home } from './pages/Home.tsx'
 import { Onboarding } from './pages/Onboarding.tsx'
 import { Settings } from './pages/Settings.tsx'
@@ -30,6 +32,8 @@ const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/signup', element: <SignUp /> },
   { path: '/login', element: <Login /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
+  { path: '/reset-password', element: <ResetPassword /> },
   { path: '/app', element: <RequireUser><Home /></RequireUser> },
   { path: '/onboarding', element: <RequireUser><Onboarding /></RequireUser> },
   { path: '/settings', element: <RequireUser><Settings /></RequireUser> },
